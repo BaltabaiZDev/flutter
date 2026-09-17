@@ -1,0 +1,47 @@
+const List<Map<String, dynamic>> rawBooks = [
+  {
+    'title': 'Clean Code',
+    'year': 2008,
+    'pages': 464,
+    'author': 'Robert Martin',
+    'country': 'USA',
+    'genre': 'craft',
+  },
+  {
+    'title': 'The Pragmatic Programmer',
+    'year': 2019,
+    'pages': 352,
+    'author': 'Andrew Hunt',
+    'country': 'USA',
+    'genre': 'craft',
+  },
+  {
+    'title': 'Refactoring',
+    'year': 2018,
+    'pages': 448,
+    'author': 'Martin Fowler',
+    'country': 'UK',
+    'genre': 'craft',
+    'description': 'Improving the design of existing code',
+  },
+  {
+    'title': 'Design Patterns',
+    'year': 1994,
+    'pages': 395,
+    'author': 'Erich Gamma',
+    'genre': 'theory',
+  },
+  {
+    'title': 'Domain-Driven Design',
+    'year': 2003,
+    'pages': 560,
+    'author': 'Eric Evans',
+    'country': 'USA',
+    'genre': 'theory',
+  },
+  {
+    'title': 'Broken Book',
+    'year': 2022,
+    'author': 'Unknown',
+  },
+];
