@@ -1,0 +1,4 @@
+name: practice2
+description: Mobile Development Practice 2 - Dart Domain Modeling
+environment:
+  sdk: '>=3.0.0 <4.0.0'
