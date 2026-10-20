@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'models/book.dart';
+import 'widgets/book_tile.dart';
 
 enum Filter {
   all,
@@ -44,6 +45,57 @@ class _LibraryScreenState extends State<LibraryScreen> {
               child: Padding(
                 padding: EdgeInsets.all(8),
                 child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Books',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '${_books.length}',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Pages',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '${totalPages(_books)}',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Unread',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '${unread(_books).length}',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (final Filter f in Filter.values)
@@ -66,11 +118,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
               child: ListView.builder(
                 itemCount: _visible.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return CheckboxListTile(
-                    value: _visible[index].read,
-                    title: Text(_visible[index].title),
-                    subtitle: Text(_visible[index].author),
-                    onChanged: (value) => setState(() => _visible[index].read = value ?? false),
+                  return BookTile(
+                    book: _visible[index],
+                    onToggle: () => setState(() => _visible[index].read = !_visible[index].read),
                   );
                 },
               ),
