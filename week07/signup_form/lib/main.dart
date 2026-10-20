@@ -29,6 +29,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _confirm = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  final _emailFocusNode = FocusNode();
 
   void showSnackBar(String text) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -38,9 +39,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  void submitForm() {
+    if (_formKey.currentState!.validate()) {
+      showSnackBar('Account created');
+    }
+  }
+
   @override
   void dispose() {
-    for (final c in [_name, _email, _password, _confirm]) {
+    for (final c in [_name, _email, _password, _confirm, _emailFocusNode]) {
       c.dispose();
     }
 
@@ -50,7 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Sign up')),
-    body: Padding(
+    body: SingleChildScrollView(
       padding: EdgeInsets.all(16),
       child: Form(
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -69,6 +76,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     return null;
                   },
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _emailFocusNode.requestFocus(),
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                   decoration: const InputDecoration(labelText: 'Name'),
                 ),
               ),
@@ -88,6 +98,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     return null;
                   },
+                  keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  textInputAction: TextInputAction.next,
+                  focusNode: _emailFocusNode,
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     hintText: 'name@kbtu.kz',
@@ -108,15 +123,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     return null;
                   },
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                   decoration: InputDecoration(
                     labelText: 'Password',
                     helperText: _password.text.isEmpty
                         ? 'At least 8 characters'
                         : '${_password.text.length} of 8+',
                   ),
-                  onChanged: (String value) {
-                    setState(() {});
-                  },
+                  onChanged: (_) => setState(() {}),
                 ),
               ),
             ),
@@ -133,17 +149,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     return null;
                   },
+                  obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => submitForm(),
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                   decoration: const InputDecoration(labelText: 'Confirm password'),
                 ),
               ),
             ),
             const SizedBox(height: 16.0),
-            FilledButton(onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  showSnackBar('Account created');
-                }
-              },
-              child: Text('Sign up')),
+            FilledButton(onPressed: submitForm,
+                child: Text('Sign up')),
           ],
         ),
       ),
