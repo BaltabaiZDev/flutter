@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/book.dart';
 import 'widgets/book_tile.dart';
+import 'detail_screen.dart';
 
 enum Filter {
   all,
@@ -118,9 +119,23 @@ class _LibraryScreenState extends State<LibraryScreen> {
               child: ListView.builder(
                 itemCount: _visible.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return BookTile(
-                    book: _visible[index],
-                    onToggle: () => setState(() => _visible[index].read = !_visible[index].read),
+                  return InkWell(
+                    onTap: () async {
+                      final action = await Navigator.of(context).push<BookAction>(MaterialPageRoute(builder: (context) => DetailScreen(book: _visible[index])));
+
+                      if (!context.mounted || action == null) return;
+
+                      switch (action) {
+                        case BookAction.toggleRead:
+                          setState(() => _visible[index].read = !_visible[index].read);
+                        case BookAction.delete:
+                          setState(() => _books.remove(_visible[index]));
+                      }
+                    },
+                    child: BookTile(
+                      book: _visible[index],
+                      onToggle: () => setState(() => _visible[index].read = !_visible[index].read),
+                    ),
                   );
                 },
               ),
