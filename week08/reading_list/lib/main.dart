@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'library_screen.dart';
-
-void main() => runApp(const MyApp());
+import 'models/book.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -13,32 +12,9 @@ class MyApp extends StatelessWidget {
   );
 }
 
-class Book {
-  Book({
-    required this.title,
-    required this.author,
-    required this.pages,
-    this.year,
-    this.read = false,
-  });
+void main() {
+  debugPrint('${totalPages(seed)} pages, ${unread(seed).length} unread');
+  debugPrint(Book.fromMap({'title': 'X', 'author': 'Y', 'pages': 10}).toString());
 
-  final String title;
-  final String author;
-  final int pages;
-  final int? year;
-  bool read;
+  runApp(const MyApp());
 }
-
-final seed = <Book>[
-  Book(title: 'Widgets All the Way Down', author: 'A. Nurmagambetova',
-      pages: 288, year: 2021, read: true),
-  Book(title: 'Null Safety for Humans', author: 'B. Seitkali',
-      pages: 196, year: 2022),
-  Book(title: 'Constraints Go Down, Sizes Go Up', author: 'C. Tashimova',
-      pages: 320),
-  Book(title: 'The Navigator Is a Stack', author: 'D. Alibekov',
-      pages: 240, year: 2020),
-  Book(title: 'A Very Long Title About Forms, Focus, the Keyboard '
-      'and Everything That Overflows', author: 'E. Omarova',
-      pages: 176, year: 2023),
-];
