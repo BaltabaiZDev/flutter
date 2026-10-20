@@ -27,9 +27,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  final _birth = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   final _emailFocusNode = FocusNode();
+
+  String? _group;
+  DateTime? _birthDate;
+  bool _agreed = false;
 
   void showSnackBar(String text) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -47,7 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    for (final c in [_name, _email, _password, _confirm, _emailFocusNode]) {
+    for (final c in [_name, _email, _password, _confirm, _birth, _emailFocusNode]) {
       c.dispose();
     }
 
@@ -83,7 +88,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
             Card(
               child: Padding(
                 padding: EdgeInsets.all(8),
@@ -110,7 +114,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
             Card(
               child: Padding(
                 padding: EdgeInsets.all(8),
@@ -136,14 +139,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
             Card(
               child: Padding(
                 padding: EdgeInsets.all(8),
                 child: TextFormField(
                   controller: _confirm,
                   validator: (value) {
-                    if ((value ?? '').trim() != _password.text) {
+                    if ((value ?? '').trim() != _password.text.trim()) {
                       return 'Passwords do not match';
                     }
 
@@ -157,9 +159,58 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
-            FilledButton(onPressed: submitForm,
-                child: Text('Sign up')),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: DropdownButtonFormField<String>(
+                  items: [for (String group in groups) DropdownMenuItem<String>(value: group, child: Text(group))],
+                  validator: (group) => group == null ? 'Choose a group' : null,
+                  onChanged: (value) => setState(() {
+                    _group = value;
+                  }),
+                ),
+              ),
+            ),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: TextFormField(
+                  readOnly: true,
+                  controller: _birth,
+                  validator: (value) => value == '' ? 'Select your birth date' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Birthday',
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  onTap: () async {
+                    DateTime? birthdate = await showDatePicker(context: context, firstDate: DateTime(1950), lastDate: DateTime.now());
+
+                    if (!mounted || birthdate == null) return;
+
+                    setState(() {
+                      _birthDate = birthdate;
+                      _birth.text = '${birthdate.day.toString().padLeft(2, '0')}.${birthdate.month.toString().padLeft(2, '0')}.${birthdate.year.toString().padLeft(4, '0')}';
+                    });
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: CheckboxListTile(
+                title: const Text('I agree to the rules'),
+                value: _agreed,
+                onChanged: (value) {
+                  setState(() {
+                    _agreed = value ?? false;
+                  });
+                },
+              ),
+            ),
+            FilledButton(
+              onPressed: _agreed ? submitForm : null,
+              child: Text('Sign up'),
+            ),
           ],
         ),
       ),
