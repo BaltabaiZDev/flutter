@@ -28,26 +28,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   void showSnackBar(String text) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     final snackBar = SnackBar(content: Text(text));
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  void validate() {
-    if (_name.text.length < 2) {
-      showSnackBar('Name is too short');
-    } else if (!_email.text.contains('@')) {
-      showSnackBar('Email looks wrong');
-    } else if (_password.text.length < 8) {
-      showSnackBar('Password is too short');
-    } else if (_password.text != _confirm.text) {
-      showSnackBar('Passwords do not match');
-    } else {
-      showSnackBar('Account created');
-    }
   }
 
   @override
@@ -62,64 +50,102 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Sign up')),
-
     body: Padding(
       padding: EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: TextField(
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: TextField(
-                controller: _email,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'name@kbtu.kz',
+      child: Form(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        key: _formKey,
+        child: Column(
+          children: [
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: TextFormField(
+                  controller: _name,
+                  validator: (value) {
+                    if ((value ?? '').trim().length < 2) {
+                      return 'Name is too short';
+                    }
+
+                    return null;
+                  },
+                  decoration: const InputDecoration(labelText: 'Name'),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 16.0),
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: TextField(
-                controller: _password,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  helperText: _password.text.isEmpty
-                      ? 'At least 8 characters'
-                      : '${_password.text.length} of 8+',
+            const SizedBox(height: 16.0),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: TextFormField(
+                  controller: _email,
+                  validator: (value) {
+                    final String email = (value ?? '').trim();
+
+                    if (!email.contains('@') || email.indexOf('.', email.indexOf('@')) <= email.indexOf('@')) {
+                      return 'Email looks wrong';
+                    }
+
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'name@kbtu.kz',
+                  ),
                 ),
-                onChanged: (String value) {
-                  setState(() {});
-                },
               ),
             ),
-          ),
-          const SizedBox(height: 16.0),
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: TextField(
-                controller: _confirm,
-                decoration: const InputDecoration(labelText: 'Confirm password'),
+            const SizedBox(height: 16.0),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: TextFormField(
+                  controller: _password,
+                  validator: (value) {
+                    if ((value ?? '').trim().length < 8) {
+                      return 'Password is too short';
+                    }
+
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    helperText: _password.text.isEmpty
+                        ? 'At least 8 characters'
+                        : '${_password.text.length} of 8+',
+                  ),
+                  onChanged: (String value) {
+                    setState(() {});
+                  },
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16.0),
-          FilledButton(onPressed: validate, child: Text('Sign up')),
-        ],
+            const SizedBox(height: 16.0),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: TextFormField(
+                  controller: _confirm,
+                  validator: (value) {
+                    if ((value ?? '').trim() != _password.text) {
+                      return 'Passwords do not match';
+                    }
+
+                    return null;
+                  },
+                  decoration: const InputDecoration(labelText: 'Confirm password'),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            FilledButton(onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  showSnackBar('Account created');
+                }
+              },
+              child: Text('Sign up')),
+          ],
+        ),
       ),
     ),
   );
