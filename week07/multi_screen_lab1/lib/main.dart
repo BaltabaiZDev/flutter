@@ -7,8 +7,19 @@ const Color seedColor = Colors.teal;
 
 void main() => runApp(const MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _setThemeMode(ThemeMode mode) {
+    setState(() => _themeMode = mode);
+  }
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -20,19 +31,39 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
     ),
-    home: const Shell(),
+    themeMode: _themeMode,
+    home: Shell(themeMode: _themeMode, onThemeModeChanged: _setThemeMode),
   );
 }
 
 class Shell extends StatefulWidget {
-  const Shell({super.key});
+  const Shell({
+    super.key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+  });
+
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
 
   @override
   State<Shell> createState() => _ShellState();
 }
 
 class _ShellState extends State<Shell> {
+  static const List<String> _titles = ['Campus events', 'Favourites', 'Profile'];
+
   List<CampusEvent> _events = buildSeed();
+  Profile _profile = const Profile.empty();
+  int _index = 0;
+
+  void _goToTab(int index) {
+    setState(() => _index = index);
+  }
+
+  void _setProfile(Profile profile) {
+    setState(() => _profile = profile);
+  }
 
   void _toggleFavourite(CampusEvent event) {
     setState(() {
@@ -45,23 +76,149 @@ class _ShellState extends State<Shell> {
 
   void _notYet() {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Coming in the next step')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Coming in the next step')),
+    );
+  }
+
+  void _about() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Campus events'),
+        content: const Text(
+          'Browse, register for and organise events on campus. '
+          'All data lives in memory.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _reset() async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reset data?'),
+        content: const Text(
+          'Events return to the seed list and the profile is cleared.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || confirmed != true) return;
+
+    setState(() {
+      _events = buildSeed();
+      _profile = const Profile.empty();
+    });
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Campus events')),
-    body: EventsTab(
-      events: _events,
-      onOpen: (_) => _notYet(),
-      onToggleFavourite: _toggleFavourite,
-      onAdd: _notYet,
+    appBar: AppBar(title: Text(_titles[_index])),
+    drawer: Drawer(
+      child: ListView(
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                'Campus events',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About'),
+            onTap: () {
+              Navigator.of(context).pop();
+
+              _about();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.restore),
+            title: const Text('Reset data'),
+            onTap: () {
+              Navigator.of(context).pop();
+
+              _reset();
+            },
+          ),
+        ],
+      ),
     ),
-    floatingActionButton: FloatingActionButton(
-      tooltip: 'New event',
-      onPressed: _notYet,
-      child: const Icon(Icons.add),
+    body: IndexedStack(
+      index: _index,
+      children: [
+        EventsTab(
+          events: _events,
+          onOpen: (_) => _notYet(),
+          onToggleFavourite: _toggleFavourite,
+          onAdd: _notYet,
+        ),
+        FavouritesTab(
+          events: _events,
+          onOpen: (_) => _notYet(),
+          onToggleFavourite: _toggleFavourite,
+          onBrowse: () => _goToTab(0),
+        ),
+        ProfileTab(
+          profile: _profile,
+          events: _events,
+          themeMode: widget.themeMode,
+          onProfileChanged: _setProfile,
+          onThemeModeChanged: widget.onThemeModeChanged,
+        ),
+      ],
+    ),
+    floatingActionButton: _index == 0
+        ? FloatingActionButton(
+            tooltip: 'New event',
+            onPressed: _notYet,
+            child: const Icon(Icons.add),
+          )
+        : null,
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: _index,
+      onDestinationSelected: _goToTab,
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.event_outlined),
+          selectedIcon: Icon(Icons.event),
+          label: 'Events',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.favorite_border),
+          selectedIcon: Icon(Icons.favorite),
+          label: 'Favourites',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
     ),
   );
 }

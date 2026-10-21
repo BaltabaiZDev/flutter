@@ -158,3 +158,178 @@ class _EventsTabState extends State<EventsTab> {
     );
   }
 }
+
+class FavouritesTab extends StatelessWidget {
+  const FavouritesTab({
+    super.key,
+    required this.events,
+    required this.onOpen,
+    required this.onToggleFavourite,
+    required this.onBrowse,
+  });
+
+  final List<CampusEvent> events;
+  final ValueChanged<CampusEvent> onOpen;
+  final ValueChanged<CampusEvent> onToggleFavourite;
+  final VoidCallback onBrowse;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<CampusEvent> favourites = sortedByDate(favouritesOf(events));
+
+    if (favourites.isEmpty) {
+      return EmptyState(
+        icon: Icons.favorite_border,
+        message: 'No favourites yet',
+        buttonLabel: 'Browse events',
+        onPressed: onBrowse,
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: favourites.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) => EventCard(
+        event: favourites[index],
+        onTap: () => onOpen(favourites[index]),
+        onToggleFavourite: () => onToggleFavourite(favourites[index]),
+      ),
+    );
+  }
+}
+
+class ProfileTab extends StatefulWidget {
+  const ProfileTab({
+    super.key,
+    required this.profile,
+    required this.events,
+    required this.themeMode,
+    required this.onProfileChanged,
+    required this.onThemeModeChanged,
+  });
+
+  final Profile profile;
+  final List<CampusEvent> events;
+  final ThemeMode themeMode;
+  final ValueChanged<Profile> onProfileChanged;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+
+  @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  static final RegExp _groupPattern = RegExp(r'^[A-Z]{2,4}-\d{4}$');
+
+  late final TextEditingController _name = TextEditingController(
+    text: widget.profile.name,
+  );
+  late final TextEditingController _group = TextEditingController(
+    text: widget.profile.group,
+  );
+
+  static String? _groupError(String? value) {
+    final String group = (value ?? '').trim();
+
+    if (group.isEmpty || _groupPattern.hasMatch(group)) return null;
+
+    return 'Use the format IT-2301';
+  }
+
+  void _saveName() {
+    widget.onProfileChanged(widget.profile.copyWith(name: _name.text.trim()));
+  }
+
+  void _saveGroup() {
+    if (_groupError(_group.text) != null) return;
+
+    widget.onProfileChanged(widget.profile.copyWith(group: _group.text.trim()));
+  }
+
+  @override
+  void didUpdateWidget(ProfileTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.profile.name != oldWidget.profile.name) {
+      _name.text = widget.profile.name;
+    }
+
+    if (widget.profile.group != oldWidget.profile.group) {
+      _group.text = widget.profile.group;
+    }
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _group.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme text = Theme.of(context).textTheme;
+    final int lists = listsContaining(widget.events, widget.profile.name);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(
+          'You are on $lists ${lists == 1 ? 'list' : 'lists'}',
+          style: text.titleMedium,
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _name,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) {
+            _saveName();
+
+            FocusScope.of(context).nextFocus();
+          },
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+          decoration: const InputDecoration(
+            labelText: 'Name',
+            helperText: 'Press Next to save',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _group,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: _groupError,
+          textInputAction: TextInputAction.done,
+          onFieldSubmitted: (_) => _saveGroup(),
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+          decoration: const InputDecoration(
+            labelText: 'Group',
+            hintText: 'IT-2301',
+            helperText: 'Press Done to save',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text('Theme', style: text.titleMedium),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final ThemeMode mode in ThemeMode.values)
+              ChoiceChip(
+                label: Text(switch (mode) {
+                  ThemeMode.system => 'System',
+                  ThemeMode.light => 'Light',
+                  ThemeMode.dark => 'Dark',
+                }),
+                selected: widget.themeMode == mode,
+                onSelected: (_) => widget.onThemeModeChanged(mode),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
