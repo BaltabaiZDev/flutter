@@ -16,9 +16,7 @@ class BookTile extends StatelessWidget {
           children: [
             Stack(
               children: [
-                CircleAvatar(
-                  child: Text(book.title[0]),
-                ),
+                CircleAvatar(child: Text(book.title[0])),
                 if (!book.read)
                   Positioned(
                     right: -2,
@@ -53,10 +51,7 @@ class BookTile extends StatelessWidget {
                 ],
               ),
             ),
-            Checkbox(
-              value: book.read,
-              onChanged: (_) => onToggle(),
-            ),
+            Checkbox(value: book.read, onChanged: (_) => onToggle()),
           ],
         ),
       ),

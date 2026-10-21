@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'models/book.dart';
 import 'widgets/book_tile.dart';
 import 'detail_screen.dart';
+import 'add_book_screen.dart';
 
-enum Filter {
-  all,
-  unread,
-  read
-}
+enum Filter { all, unread, read }
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -35,8 +33,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Reading list (${_visible.length})'),
+      appBar: AppBar(title: Text('Reading list (${_visible.length})')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final book = await Navigator.of(context).push<Book>(
+            MaterialPageRoute(builder: (context) => AddBookScreen()),
+          );
+
+          if (!context.mounted || book == null) return;
+
+          setState(() => _books.add(book));
+        },
+        child: const Icon(Icons.add),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -121,20 +129,30 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
                     onTap: () async {
-                      final action = await Navigator.of(context).push<BookAction>(MaterialPageRoute(builder: (context) => DetailScreen(book: _visible[index])));
+                      final action = await Navigator.of(context)
+                          .push<BookAction>(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DetailScreen(book: _visible[index]),
+                            ),
+                          );
 
                       if (!context.mounted || action == null) return;
 
                       switch (action) {
                         case BookAction.toggleRead:
-                          setState(() => _visible[index].read = !_visible[index].read);
+                          setState(
+                            () => _visible[index].read = !_visible[index].read,
+                          );
                         case BookAction.delete:
                           setState(() => _books.remove(_visible[index]));
                       }
                     },
                     child: BookTile(
                       book: _visible[index],
-                      onToggle: () => setState(() => _visible[index].read = !_visible[index].read),
+                      onToggle: () => setState(
+                        () => _visible[index].read = !_visible[index].read,
+                      ),
                     ),
                   );
                 },

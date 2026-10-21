@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'library_screen.dart';
 import 'models/book.dart';
 
@@ -7,14 +8,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
+    theme: ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+    ),
     home: const LibraryScreen(),
   );
 }
 
 void main() {
   debugPrint('${totalPages(seed)} pages, ${unread(seed).length} unread');
-  debugPrint(Book.fromMap({'title': 'X', 'author': 'Y', 'pages': 10}).toString());
+  debugPrint(
+    Book.fromMap({'title': 'X', 'author': 'Y', 'pages': 10}).toString(),
+  );
 
   runApp(const MyApp());
 }
