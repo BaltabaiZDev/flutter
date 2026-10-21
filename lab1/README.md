@@ -62,3 +62,5 @@ With week 9's tools I would move the shifts out of the shell's `State` into a
 store that survives restarts (`shared_preferences` or a local database) and
 replace the callbacks with a state-management solution so screens stop passing
 functions to each other.
+
+A requirement-by-requirement map is in [docs/requirements.md](docs/requirements.md).
