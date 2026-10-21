@@ -9,12 +9,12 @@ class Shift {
     required this.cause,
     required this.startsAt,
     required this.slots,
-    List<String> volunteers = const [],
+    this._volunteers = const [],
     this.isRemote = false,
     required this.location,
     this.notes,
     this.favourite = false,
-  }) : _volunteers = volunteers;
+  });
 
   /// Defaults for the "new shift" form; the form still makes the user pick
   /// a cause and a date before it saves.
@@ -58,8 +58,7 @@ class Shift {
 
   ({int taken, int free}) get places => (taken: count, free: freePlaces);
 
-  Countdown countdown(DateTime now) =>
-      Countdown.of(startsAt, length, now);
+  Countdown countdown(DateTime now) => Countdown.of(startsAt, length, now);
 
   Shift join(String name) =>
       contains(name) ? this : copyWith(volunteers: [..._volunteers, name]);

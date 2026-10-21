@@ -122,8 +122,7 @@ class _FormScreenState extends State<FormScreen> {
     return null;
   }
 
-  String? _validateCause(Cause? value) =>
-      value == null ? 'Pick a cause' : null;
+  String? _validateCause(Cause? value) => value == null ? 'Pick a cause' : null;
 
   String? _validateDate(String? _) {
     if (_day == null) return 'Pick a date';

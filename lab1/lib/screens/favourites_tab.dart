@@ -24,7 +24,8 @@ class FavouritesTab extends StatelessWidget {
     if (!shifts.any((s) => s.favourite)) {
       return EmptyState(
         icon: Icons.favorite_border,
-        message: 'No favourites yet.\nTap the heart on a shift to keep it here.',
+        message:
+            'No favourites yet.\nTap the heart on a shift to keep it here.',
         actionLabel: 'Browse shifts',
         onAction: onBrowse,
       );

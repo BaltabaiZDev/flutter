@@ -50,10 +50,11 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
   };
 }
 
-Route<dynamic> onUnknownRoute(RouteSettings settings) => MaterialPageRoute<void>(
-  settings: settings,
-  builder: (_) => Scaffold(
-    appBar: AppBar(title: const Text('Not found')),
-    body: Center(child: Text('Not found: ${settings.name}')),
-  ),
-);
+Route<dynamic> onUnknownRoute(RouteSettings settings) =>
+    MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: const Text('Not found')),
+        body: Center(child: Text('Not found: ${settings.name}')),
+      ),
+    );
