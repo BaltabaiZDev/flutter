@@ -7,6 +7,7 @@ import '../models/shift.dart';
 import '../routes.dart';
 import '../utils/format.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/icon_row.dart';
 
 enum _MenuAction { edit, delete }
 
@@ -138,7 +139,11 @@ class _DetailScreenState extends State<DetailScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_shift.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          title: Text(
+            _shift.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           actions: [
             PopupMenuButton<_MenuAction>(
               onSelected: (action) => switch (action) {
@@ -148,13 +153,22 @@ class _DetailScreenState extends State<DetailScreen> {
               itemBuilder: (context) => const [
                 PopupMenuItem(
                   value: _MenuAction.edit,
-                  child: ListTile(leading: Icon(Icons.edit), title: Text('Edit')),
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit),
+                      SizedBox(width: 12),
+                      Text('Edit'),
+                    ],
+                  ),
                 ),
                 PopupMenuItem(
                   value: _MenuAction.delete,
-                  child: ListTile(
-                    leading: Icon(Icons.delete),
-                    title: Text('Delete'),
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete),
+                      SizedBox(width: 12),
+                      Text('Delete'),
+                    ],
                   ),
                 ),
               ],
@@ -271,22 +285,20 @@ class _AboutTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
-        ListTile(
-          leading: const Icon(Icons.event),
-          title: Text(formatDateTime(shift.startsAt)),
-          subtitle: Text(
-            'until ${formatTime(shift.startsAt.add(Shift.length))}',
-          ),
+        IconRow(
+          icon: const Icon(Icons.event),
+          title: formatDateTime(shift.startsAt),
+          subtitle: 'until ${formatTime(shift.startsAt.add(Shift.length))}',
         ),
-        ListTile(
-          leading: Icon(shift.isRemote ? Icons.videocam : Icons.place),
-          title: Text(shift.location),
-          subtitle: Text(shift.isRemote ? 'Online meeting link' : 'Place'),
+        IconRow(
+          icon: Icon(shift.isRemote ? Icons.videocam : Icons.place),
+          title: shift.location,
+          subtitle: shift.isRemote ? 'Online meeting link' : 'Place',
         ),
-        ListTile(
-          leading: const Icon(Icons.groups),
-          title: Text('$taken of ${shift.slots} places taken'),
-          subtitle: Text(free > 0 ? '$free free' : 'No places left'),
+        IconRow(
+          icon: const Icon(Icons.groups),
+          title: '$taken of ${shift.slots} places taken',
+          subtitle: free > 0 ? '$free free' : 'No places left',
         ),
         if (notes != null)
           Padding(
@@ -316,10 +328,10 @@ class _NamesTab extends StatelessWidget {
     return ListView(
       children: [
         for (final name in names)
-          ListTile(
-            selected: name == me,
-            leading: CircleAvatar(child: Text(name.characters.first)),
-            title: Text(name),
+          IconRow(
+            highlighted: name == me,
+            icon: CircleAvatar(child: Text(name.characters.first)),
+            title: name,
             trailing: name == me ? const Chip(label: Text('You')) : null,
           ),
       ],
