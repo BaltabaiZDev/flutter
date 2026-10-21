@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'models.dart';
+import 'routes.dart';
 import 'tabs.dart';
 
 const Color seedColor = Colors.teal;
@@ -15,24 +17,39 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
+  final ValueNotifier<ThemeMode> _themeMode = ValueNotifier<ThemeMode>(
+    ThemeMode.system,
+  );
 
-  void _setThemeMode(ThemeMode mode) {
-    setState(() => _themeMode = mode);
+  @override
+  void dispose() {
+    _themeMode.dispose();
+
+    super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'Campus events',
-    theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seedColor)),
-    darkTheme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: Brightness.dark,
+  Widget build(BuildContext context) => ValueListenableBuilder<ThemeMode>(
+    valueListenable: _themeMode,
+    builder: (context, mode, child) => MaterialApp(
+      title: 'Campus events',
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seedColor)),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seedColor,
+          brightness: Brightness.dark,
+        ),
       ),
+      themeMode: mode,
+      routes: {
+        Routes.shell: (context) => Shell(
+          themeMode: _themeMode,
+          onThemeModeChanged: (value) => _themeMode.value = value,
+        ),
+      },
+      onGenerateRoute: generateRoute,
+      onUnknownRoute: unknownRoute,
     ),
-    themeMode: _themeMode,
-    home: Shell(themeMode: _themeMode, onThemeModeChanged: _setThemeMode),
   );
 }
 
@@ -43,7 +60,7 @@ class Shell extends StatefulWidget {
     required this.onThemeModeChanged,
   });
 
-  final ThemeMode themeMode;
+  final ValueListenable<ThemeMode> themeMode;
   final ValueChanged<ThemeMode> onThemeModeChanged;
 
   @override
@@ -51,7 +68,11 @@ class Shell extends StatefulWidget {
 }
 
 class _ShellState extends State<Shell> {
-  static const List<String> _titles = ['Campus events', 'Favourites', 'Profile'];
+  static const List<String> _titles = [
+    'Campus events',
+    'Favourites',
+    'Profile',
+  ];
 
   List<CampusEvent> _events = buildSeed();
   Profile _profile = const Profile.empty();
@@ -74,11 +95,37 @@ class _ShellState extends State<Shell> {
     });
   }
 
+  void _replace(CampusEvent updated) {
+    setState(() {
+      _events = [
+        for (final CampusEvent e in _events) e.id == updated.id ? updated : e,
+      ];
+    });
+  }
+
+  void _remove(CampusEvent event) {
+    setState(() {
+      _events = _events.where((e) => e.id != event.id).toList();
+    });
+  }
+
+  void _open(CampusEvent event) {
+    Navigator.of(context).pushNamed(
+      Routes.detail,
+      arguments: DetailArgs(
+        event: event,
+        profile: _profile,
+        onChanged: _replace,
+        onDelete: () => _remove(event),
+        onOpenProfile: () => _goToTab(2),
+      ),
+    );
+  }
+
   void _notYet() {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Coming in the next step')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Coming in the next step')));
   }
 
   void _about() {
@@ -173,13 +220,13 @@ class _ShellState extends State<Shell> {
       children: [
         EventsTab(
           events: _events,
-          onOpen: (_) => _notYet(),
+          onOpen: _open,
           onToggleFavourite: _toggleFavourite,
           onAdd: _notYet,
         ),
         FavouritesTab(
           events: _events,
-          onOpen: (_) => _notYet(),
+          onOpen: _open,
           onToggleFavourite: _toggleFavourite,
           onBrowse: () => _goToTab(0),
         ),

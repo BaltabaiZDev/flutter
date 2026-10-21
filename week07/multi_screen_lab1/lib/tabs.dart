@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'models.dart';
@@ -211,7 +212,7 @@ class ProfileTab extends StatefulWidget {
 
   final Profile profile;
   final List<CampusEvent> events;
-  final ThemeMode themeMode;
+  final ValueListenable<ThemeMode> themeMode;
   final ValueChanged<Profile> onProfileChanged;
   final ValueChanged<ThemeMode> onThemeModeChanged;
 
@@ -314,20 +315,23 @@ class _ProfileTabState extends State<ProfileTab> {
         const SizedBox(height: 24),
         Text('Theme', style: text.titleMedium),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children: [
-            for (final ThemeMode mode in ThemeMode.values)
-              ChoiceChip(
-                label: Text(switch (mode) {
-                  ThemeMode.system => 'System',
-                  ThemeMode.light => 'Light',
-                  ThemeMode.dark => 'Dark',
-                }),
-                selected: widget.themeMode == mode,
-                onSelected: (_) => widget.onThemeModeChanged(mode),
-              ),
-          ],
+        ValueListenableBuilder<ThemeMode>(
+          valueListenable: widget.themeMode,
+          builder: (context, current, child) => Wrap(
+            spacing: 8,
+            children: [
+              for (final ThemeMode mode in ThemeMode.values)
+                ChoiceChip(
+                  label: Text(switch (mode) {
+                    ThemeMode.system => 'System',
+                    ThemeMode.light => 'Light',
+                    ThemeMode.dark => 'Dark',
+                  }),
+                  selected: current == mode,
+                  onSelected: (_) => widget.onThemeModeChanged(mode),
+                ),
+            ],
+          ),
         ),
       ],
     );
