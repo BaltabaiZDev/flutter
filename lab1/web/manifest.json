@@ -1,11 +1,11 @@
 {
-    "name": "helping_hands",
-    "short_name": "helping_hands",
+    "name": "Helping Hands",
+    "short_name": "Helping Hands",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Volunteer shifts on campus and around town.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
