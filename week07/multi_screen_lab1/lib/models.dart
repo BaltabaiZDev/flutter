@@ -19,9 +19,18 @@ enum EventCategory {
     EventCategory.tech => scheme.primary,
     EventCategory.music => scheme.tertiary,
     EventCategory.sports => scheme.secondary,
-    EventCategory.career => scheme.inversePrimary,
+    EventCategory.career => scheme.primaryContainer,
     EventCategory.arts => scheme.tertiaryContainer,
     EventCategory.social => scheme.secondaryContainer,
+  };
+
+  Color onColor(ColorScheme scheme) => switch (this) {
+    EventCategory.tech => scheme.onPrimary,
+    EventCategory.music => scheme.onTertiary,
+    EventCategory.sports => scheme.onSecondary,
+    EventCategory.career => scheme.onPrimaryContainer,
+    EventCategory.arts => scheme.onTertiaryContainer,
+    EventCategory.social => scheme.onSecondaryContainer,
   };
 }
 
@@ -70,8 +79,8 @@ class CampusEvent {
     this.online = false,
     this.description,
     this.favourite = false,
-    List<String> attendees = const [],
-  }) : _attendees = attendees;
+    this._attendees = const [],
+  });
 
   CampusEvent.empty()
     : this(
