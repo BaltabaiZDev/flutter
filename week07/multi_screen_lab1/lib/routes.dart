@@ -42,6 +42,13 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     );
   }
 
+  if (settings.name == Routes.form && args is FormArgs) {
+    return MaterialPageRoute<CampusEvent>(
+      settings: settings,
+      builder: (context) => EventFormScreen(args: args),
+    );
+  }
+
   return null;
 }
 

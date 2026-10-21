@@ -122,10 +122,13 @@ class _ShellState extends State<Shell> {
     );
   }
 
-  void _notYet() {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Coming in the next step')));
+  Future<void> _add() async {
+    final CampusEvent? created = await Navigator.of(context)
+        .pushNamed<CampusEvent>(Routes.form, arguments: const FormArgs());
+
+    if (created == null || !mounted) return;
+
+    setState(() => _events = [..._events, created]);
   }
 
   void _about() {
@@ -222,7 +225,7 @@ class _ShellState extends State<Shell> {
           events: _events,
           onOpen: _open,
           onToggleFavourite: _toggleFavourite,
-          onAdd: _notYet,
+          onAdd: _add,
         ),
         FavouritesTab(
           events: _events,
@@ -242,7 +245,7 @@ class _ShellState extends State<Shell> {
     floatingActionButton: _index == 0
         ? FloatingActionButton(
             tooltip: 'New event',
-            onPressed: _notYet,
+            onPressed: _add,
             child: const Icon(Icons.add),
           )
         : null,
